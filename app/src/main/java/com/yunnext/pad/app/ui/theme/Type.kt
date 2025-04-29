@@ -39,7 +39,7 @@ val Typography = Typography(
 )
 
 
-private val numberFontFamily  by lazy {
+ val numberFontFamily  by lazy {
     FontFamily(
         Font(R.font.num, FontWeight.Normal),
         Font(R.font.num, FontWeight.Bold)

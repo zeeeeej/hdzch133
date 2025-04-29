@@ -121,6 +121,7 @@ dependencies {
 
     implementation(libs.bundles.mlkit)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.navigation.compose)
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.bundles.zeeeeej)

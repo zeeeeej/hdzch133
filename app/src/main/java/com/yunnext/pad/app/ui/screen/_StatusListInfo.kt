@@ -18,10 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.yunnext.pad.app.R
 import com.yunnext.pad.app.ui.screen.compontent.ComposeIcon
 import com.yunnext.pad.app.ui.screen.compontent.ImageComponent
-import com.yunnext.pad.app.ui.screen.vo.Status
 import com.yunnext.pad.app.ui.screen.vo.StatusVo
 import com.yunnext.pad.app.ui.theme.myTextStyle
 
@@ -58,7 +56,5 @@ private fun StatusInfo(modifier: Modifier = Modifier, value: StatusVo) {
             overflow = TextOverflow.Visible,
             softWrap = false
         )
-
     }
-
 }
