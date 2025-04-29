@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="toast_offset">40dp</dimen>
+</resources>

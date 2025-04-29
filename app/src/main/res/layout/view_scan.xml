@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f00">
+
+    <androidx.camera.view.PreviewView
+        android:background="#0f0"
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" />
+
+    <com.king.mlkit.vision.barcode.ViewfinderView
+        android:id="@+id/viewfinderView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:viewfinderStyle="classic" />
+
+    <!--    <LinearLayout-->
+    <!--        android:orientation="vertical"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent">-->
+    <!--        <include-->
+    <!--            android:id="@+id/content_title"-->
+    <!--            layout="@layout/view_title_0b111"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--          />-->
+
+    <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--            android:id="@+id/content_bottom"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="0dp"-->
+    <!--            android:layout_weight="1"-->
+    <!--           >-->
+
+    <!--            <TextView-->
+    <!--                android:id="@+id/tips"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_gravity="center_horizontal"-->
+    <!--                android:gravity="center"-->
+    <!--                android:text="扫描设备二维码"-->
+    <!--                android:textColor="@android:color/white"-->
+    <!--                android:textSize="14sp"-->
+    <!--                android:textStyle="bold"-->
+    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--                app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--                app:layout_constraintRight_toRightOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--            <LinearLayout-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:orientation="vertical"-->
+    <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--                app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--                app:layout_constraintRight_toRightOf="parent">-->
+
+    <!--                <ImageView-->
+    <!--                    android:id="@+id/ivFlashlight"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_marginTop="@dimen/ml_flashlight_margin_top"-->
+    <!--                    android:src="@drawable/light_flashlight_selector" />-->
+
+    <!--                <TextView-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:layout_gravity="center_horizontal"-->
+    <!--                    android:layout_marginTop="4dp"-->
+    <!--                    android:layout_marginBottom="100dp"-->
+    <!--                    android:text="点击开启闪光灯"-->
+    <!--                    android:textColor="@android:color/white"-->
+    <!--                    android:textSize="14sp" />-->
+    <!--            </LinearLayout>-->
+
+    <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <!--    </LinearLayout>-->
+
+
+</FrameLayout>
