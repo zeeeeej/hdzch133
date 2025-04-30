@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,13 +19,14 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import com.yunnext.pad.app.domain.ToastUtil
 import com.yunnext.pad.app.ui.screen.HomeScreen
-import com.yunnext.pad.app.ui.screen.compontent.ComposeIcon
-import com.yunnext.pad.app.ui.screen.compontent.ImageComponent
+import com.yunnext.pad.app.ui.screen.vm.HomeViewModel
 
 import com.yunnext.pad.app.ui.theme.MyAppTheme
 
 
 class ComposeActivity : FragmentActivity() {
+
+    //private val vm : HomeViewModel by viewModels<HomeViewModel>()
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()

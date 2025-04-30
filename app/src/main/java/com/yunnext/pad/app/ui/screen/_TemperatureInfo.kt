@@ -1,5 +1,6 @@
 package com.yunnext.pad.app.ui.screen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -17,11 +18,14 @@ internal fun TemperatureInfo(modifier: Modifier = Modifier, temp: Int, unit: Str
             style = myTextStyle(40.sp, color = Color.White.copy(0f)),
             modifier = Modifier
         )
-        NoSpaceText(
-            text = "$temp",
-            style = myTextStyle(280.sp, color = Color.White),
-            modifier = Modifier
-        )
+        AnimatedContent(temp, label = "temp") {
+            NoSpaceText(
+                text = "$it",
+                style = myTextStyle(280.sp, color = Color.White),
+                modifier = Modifier
+            )
+        }
+
         NoSpaceText(
             text = unit,
             style = myTextStyle(40.sp, color = Color.White),

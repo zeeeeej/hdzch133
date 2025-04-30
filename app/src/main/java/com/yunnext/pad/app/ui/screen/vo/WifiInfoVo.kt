@@ -1,6 +1,25 @@
 package com.yunnext.pad.app.ui.screen.vo
 
 import com.yunnext.pad.app.R
+import kotlin.random.Random
+
+sealed interface Level {
+    data object NaN : Level
+    data class Signal(val value: Int) : Level
+
+    companion object {
+        internal fun random() = from(Random.nextInt(5))
+
+        fun from(value: Int) = when (value) {
+            0 -> Level.Signal(0)
+            1 -> Level.Signal(1)
+            2 -> Level.Signal(2)
+            3 -> Level.Signal(3)
+            4 -> Level.Signal(4)
+            else -> Level.NaN
+        }
+    }
+}
 
 data class WifiInfoVo(val level: Level)
 

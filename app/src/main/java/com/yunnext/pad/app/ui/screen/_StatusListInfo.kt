@@ -28,7 +28,7 @@ internal fun StatusListInfo(modifier: Modifier = Modifier, list: List<StatusVo>)
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(34.dp)
     ) {
         items(list, { it.status }) { info ->
             StatusInfo(value = info)
@@ -47,7 +47,7 @@ private fun StatusInfo(modifier: Modifier = Modifier, value: StatusVo) {
         Spacer(Modifier.height(4.dp))
         Text(
             modifier = Modifier
-                .border(1.dp, color = Color.Red)
+                //.border(1.dp, color = Color.Red)
                 .drawBehind {
 
                 },

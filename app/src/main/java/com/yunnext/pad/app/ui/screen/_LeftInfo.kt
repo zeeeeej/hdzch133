@@ -10,17 +10,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.yunnext.pad.app.ui.screen.vo.LeftInfo
+import com.yunnext.pad.app.ui.screen.vo.LeftInfoVo
 import com.yunnext.pad.app.ui.theme.ColorBlue
 import com.yunnext.pad.app.ui.theme.myTextStyle
 
 @Composable
-internal fun LeftInfo(modifier: Modifier = Modifier, info: LeftInfo) {
+internal fun LeftInfo(modifier: Modifier = Modifier, info: LeftInfoVo) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             modifier = Modifier
                 .padding(horizontal = 0.dp),
-            text = info,
+            text = "${info.value}",
             style = myTextStyle(80.sp, number = true)
         )
         Spacer(modifier = Modifier.width(4.dp))

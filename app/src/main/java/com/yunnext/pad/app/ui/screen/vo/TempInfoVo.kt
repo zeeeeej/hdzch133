@@ -1,3 +1,3 @@
 package com.yunnext.pad.app.ui.screen.vo
 
-typealias LeftInfo = String
+data class TempInfoVo(val temp: Int)
