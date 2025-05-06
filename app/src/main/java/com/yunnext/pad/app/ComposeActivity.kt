@@ -36,6 +36,7 @@ class ComposeActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MyApp.reset(this.applicationContext)
         enableEdgeToEdge()
         setContent {
             MyAppTheme {

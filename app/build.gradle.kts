@@ -131,5 +131,9 @@ dependencies {
     implementation(libs.fastble)
     implementation(libs.coil)
 
+    implementation(project(":okstream"))
+    implementation(project(":okserial"))
+
+
 
 }

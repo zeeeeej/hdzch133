@@ -23,4 +23,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "zch133Pad"
 include(":app")
- 
+include(":okserial")
+include(":okstream")

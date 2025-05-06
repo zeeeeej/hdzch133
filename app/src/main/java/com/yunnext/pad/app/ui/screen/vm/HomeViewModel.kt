@@ -2,6 +2,7 @@ package com.yunnext.pad.app.ui.screen.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.yunnext.pad.app.repo.DataManager
 import com.yunnext.pad.app.ui.screen.vo.TempInfoVo
 import com.yunnext.pad.app.ui.screen.vo.DateTimeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.LeftInfoVo
@@ -13,17 +14,13 @@ import com.yunnext.pad.app.ui.screen.vo.StatusVo
 import com.yunnext.pad.app.ui.screen.vo.WifiInfoVo
 import com.yunnext.pad.app.ui.screen.vo.res
 import com.yunnext.pad.app.ui.screen.vo.text
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.random.Random
 
 data class HomeState(
     val leftInfo: LeftInfoVo,
@@ -127,94 +124,85 @@ class HomeViewModel : ViewModel() {
     }
 
     init {
-        mock()
+        collectDataManager()
     }
 
-    private fun mock() {
+    private fun collectDataManager() {
         viewModelScope.launch {
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changServiceDays(Random.nextInt(9999))
+                DataManager.serviceDays.collect {
+                    changServiceDays(it)
                 }
             }
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changSavedBottles(Random.nextInt(9999))
+                DataManager.savedBottles.collect {
+                    changSavedBottles(it)
                 }
             }
 
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changCurrentTemperature(Random.nextInt(100))
+                DataManager.currentTemperature.collect {
+                    changCurrentTemperature(it)
                 }
             }
 
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changDateTimeInfo(Clock.System.now().toEpochMilliseconds())
+                DataManager.dateTimeInfo.collect {
+                    changDateTimeInfo(it)
                 }
             }
 
             launch {
-                while (isActive) {
-                    delay(2000)
-                    changWifi(Level.random())
+                DataManager.wifi.collect {
+                    changWifi(it)
                 }
             }
 
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changStatus(JiaRe, Random.nextBoolean())
+                DataManager.jiaReStatus.collect {
+                    changStatus(JiaRe, it)
                 }
             }
 
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changStatus(ZhiShui, Random.nextBoolean())
+                DataManager.jiaReStatus.collect {
+                    changStatus(ZhiShui, it)
                 }
             }
-            launch {
-                while (isActive) {
-                    delay(1000)
-                    changStatus(QueShui, Random.nextBoolean())
-                }
-            }
-            launch {
-                while (isActive) {
-                    delay(1000)
-                    changStatus(JieNeng, Random.nextBoolean())
 
+            launch {
+                DataManager.queShuiStatus.collect {
+                    changStatus(QueShui, it)
                 }
             }
             launch {
-                while (isActive) {
-                    delay(1000)
-                    changStatus(HuanXin, Random.nextBoolean())
+                DataManager.jieNengStatus.collect {
+                    changStatus(JieNeng, it)
                 }
             }
             launch {
-                while (isActive) {
-                    delay(1000)
+                DataManager.huanXinStatus.collect {
+                    changStatus(HuanXin, it)
+                }
+            }
 
-                    changStatus(ShaJun, Random.nextBoolean())
+            launch {
+                DataManager.shaJunStatus.collect {
+                    changStatus(ShaJun, it)
                 }
             }
             launch {
-                while (isActive) {
-                    delay(1000)
-
-                    changStatus(YinYong, Random.nextBoolean())
+                DataManager.yinYongStatus.collect {
+                    changStatus(YinYong, it)
                 }
             }
+
+
         }
     }
 }
+
+
 
 private fun Int.formatBottlesNumber(): String {
     return "%,d".format(this)

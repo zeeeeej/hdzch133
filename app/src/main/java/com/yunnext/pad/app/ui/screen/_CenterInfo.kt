@@ -1,5 +1,6 @@
 package com.yunnext.pad.app.ui.screen
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,16 +19,24 @@ private object Defaults {
 }
 
 @Composable
-internal fun CenterInfo(modifier: Modifier, info: TempInfoVo,list:List<StatusVo>) {
+internal fun CenterInfo(modifier: Modifier, info: TempInfoVo, list: List<StatusVo>) {
     Column(
         modifier = modifier
             .width(Defaults.CENTER_WIDTH),
 
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
+        AnimatedContent(if (list.isEmpty()) 0.dp else 96.dp, label = "top") {
+            Spacer(Modifier.height(it))
+        }
+
         TemperatureInfo(modifier = Modifier.align(Alignment.CenterHorizontally), temp = info.temp)
+
+        AnimatedContent(if (list.isEmpty()) 0.dp else 24.dp, label = "top") {
+            Spacer(Modifier.height(it))
+        }
         AnimatedVisibility(list.isNotEmpty()) {
-            Spacer(Modifier.height(40.dp))
+
             StatusListInfo(
                 modifier = Modifier
                     //.border(1.dp, color = Color.Green)
