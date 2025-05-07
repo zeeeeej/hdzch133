@@ -28,12 +28,12 @@ class SerialProtocol {
             return sum
         }
 
+//        fun calCRC(byteArray: ByteArray): Byte {
+//
+//            return (byteArray.sum()).toByte()
+//        }
+
         fun calCRC(byteArray: ByteArray): Byte {
-
-            return (byteArray.sum()).toByte()
-        }
-
-        fun calCRC2(byteArray: ByteArray): Byte {
 
             return (byteArray.sum2()).toByte()
         }
@@ -80,13 +80,33 @@ class SerialProtocol {
         //internal fun parseVersion(data: ByteArray) = data[1]
         internal fun parseTotalLength(data: ByteArray): Int = data[2].toInt()
         internal fun parsePayloadLength(data: ByteArray): Int = parseTotalLength(data = data) - 7
-        internal fun parseCmd(data: ByteArray): Int = data[3].toInt()
+        internal fun parseCmd(data: ByteArray): Byte = data[3]
 
         //internal fun parseTail(data: ByteArray) = data[data.size - 2]
         internal fun parseCRC(data: ByteArray) = data[data.size - 3]
 
         internal fun parsePayload(data: ByteArray) =
-            data.copyOfRange(4, parsePayloadLength(data = data))
+            data.copyOfRange(4, 4+parsePayloadLength(data = data))
+
+        @OptIn(ExperimentalStdlibApi::class)
+        fun create(cmd: Byte, payload: ByteArray?): ByteArray {
+            val payloadArray =
+                if (payload == null || payload.isEmpty()) byteArrayOf(0x00) else payload
+            val head = HEADER
+            val cmdArray = cmd.toArray()
+            val tail = TAIL
+            val crc = calCRC(byteArray = cmdArray + payloadArray).toArray()
+            val length =
+                (head.size + cmdArray.size + crc.size + tail.size + payloadArray.size + 1).toByte()
+                    .toArray()
+//            println("head           :${head.size}   ${head.toHexString()}")
+//            println("length         :${length.size}   ${length.toHexString()}")
+//            println("cmdArray       :${cmdArray.size}   ${cmdArray.toHexString()}")
+//            println("payloadArray   :${payloadArray.size}   ${payloadArray.toHexString()}")
+//            println("crc            :${crc.size}   ${crc.toHexString()}")
+//            println("tail           :${tail.size}   ${tail.toHexString()}")
+            return head + length + cmdArray + payloadArray + crc + tail
+        }
     }
 }
 

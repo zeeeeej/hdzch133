@@ -165,7 +165,7 @@ class HomeViewModel : ViewModel() {
             }
 
             launch {
-                DataManager.jiaReStatus.collect {
+                DataManager.zhiShuiStatus.collect {
                     changStatus(ZhiShui, it)
                 }
             }

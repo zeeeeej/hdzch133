@@ -1,6 +1,5 @@
 package com.yunnext.pad.app
 
-import com.yunnext.pad.app.repo.ble.display
 import org.junit.Test
 
 import org.junit.Assert.*
