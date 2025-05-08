@@ -9,9 +9,9 @@ class SerialProtocol {
 
         const val FLAG = 0
 
-        private const val ZC_BAUD_RATE = 9600
+        private const val ZC_BAUD_RATE = 115200
 
-        const val UART = "/dev/qqq"
+        const val UART = "/dev/ttyS7"
         const val BAUD_RATE = ZC_BAUD_RATE
 
         // 帧头
@@ -106,6 +106,37 @@ class SerialProtocol {
 //            println("crc            :${crc.size}   ${crc.toHexString()}")
 //            println("tail           :${tail.size}   ${tail.toHexString()}")
             return head + length + cmdArray + payloadArray + crc + tail
+        }
+
+        fun splitDataByMarkers(data: ByteArray): List<ByteArray> {
+            val result = mutableListOf<ByteArray>()
+            var startIndex = 0
+
+            while (startIndex < data.size - 3) { // 至少需要 4 字节（0xAA55 + 0x55BB）
+                // 查找 0xAA55 开头（假设大端序，即 0xAA 在前）
+                if (data[startIndex].toInt() == 0xAA.toByte().toInt() &&
+                    data[startIndex + 1].toInt() == 0x55.toByte().toInt()
+                ) {
+
+                    // 从 startIndex 开始查找 0x55BB 结尾
+                    var endIndex = startIndex + 2
+                    while (endIndex < data.size - 1) {
+                        if (data[endIndex].toInt() == 0x55.toByte().toInt() &&
+                            data[endIndex + 1].toInt() == 0xBB.toByte().toInt()
+                        ) {
+                            // 提取匹配的块（包含头尾标记）
+                            val chunk = data.copyOfRange(startIndex, endIndex + 2)
+                            result.add(chunk)
+                            startIndex = endIndex + 2 // 跳过已处理的部分
+                            break
+                        }
+                        endIndex++
+                    }
+                }
+                startIndex++
+            }
+
+            return result
         }
     }
 }

@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.yunnext.pad.app.repo.DataManager
 import com.yunnext.pad.app.ui.screen.vo.TempInfoVo
 import com.yunnext.pad.app.ui.screen.vo.DateTimeInfoVo
-import com.yunnext.pad.app.ui.screen.vo.LeftInfoVo
+import com.yunnext.pad.app.ui.screen.vo.GServiceInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Level
-import com.yunnext.pad.app.ui.screen.vo.RightInfoVo
+import com.yunnext.pad.app.ui.screen.vo.BottlesInfoVo
+import com.yunnext.pad.app.ui.screen.vo.QuShuiCountInfoVo
+import com.yunnext.pad.app.ui.screen.vo.QuShuiVolumeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Status
 import com.yunnext.pad.app.ui.screen.vo.Status.*
 import com.yunnext.pad.app.ui.screen.vo.StatusVo
@@ -23,8 +25,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 data class HomeState(
-    val leftInfo: LeftInfoVo,
-    val rightInfo: RightInfoVo,
+    val gServiceInfo: GServiceInfoVo,
+    val bottlesInfo: BottlesInfoVo,
+    val quShuiCount: QuShuiCountInfoVo,
+    val quShuiVolume: QuShuiVolumeInfoVo,
     val tempInfo: TempInfoVo,
     val dateTimeInfo: DateTimeInfoVo,
     val statusListInfo: List<StatusVo>,
@@ -32,9 +36,11 @@ data class HomeState(
 ) {
     companion object {
         internal val DEFAULT = HomeState(
-            leftInfo = LeftInfoVo(0),
-            rightInfo = RightInfoVo(0, "0"),
+            gServiceInfo = GServiceInfoVo(0),
+            bottlesInfo = BottlesInfoVo(0, "0"),
             tempInfo = TempInfoVo(0),
+            quShuiCount = QuShuiCountInfoVo(0,"0"),
+            quShuiVolume = QuShuiVolumeInfoVo(0,"0"),
             dateTimeInfo = DateTimeInfoVo("2000", "1", "1", "00", "00"),
             statusListInfo = emptyList(),
             wifiInfo = WifiInfoVo(Level.NaN)
@@ -48,6 +54,8 @@ class HomeViewModel : ViewModel() {
 
     private val serviceDays: MutableStateFlow<Int> = MutableStateFlow(0)
     private val savedBottles: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val quShuiCount: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val quShuiVolume: MutableStateFlow<Int> = MutableStateFlow(0)
     private val currentTemperature: MutableStateFlow<Int> = MutableStateFlow(0)
     private val dateTimeInfo: MutableStateFlow<Long> = MutableStateFlow(0L)
     private val wifi: MutableStateFlow<Level> = MutableStateFlow(Level.NaN)
@@ -69,19 +77,23 @@ class HomeViewModel : ViewModel() {
     ) { inputs ->
         inputs.mapNotNull { (status, value) ->
             if (value) StatusVo(status, status.text, status.res) else null
-        }.take(3)
+        }
     }
 
     val state: Flow<HomeState> =
-        combine(serviceDays, savedBottles, currentTemperature, dateTimeInfo, list, wifi) { inputs ->
+        combine(serviceDays, savedBottles, quShuiCount,quShuiVolume,currentTemperature, dateTimeInfo, list, wifi) { inputs ->
             val savedBottlesValue = inputs[1] as Int
-            val currentTemperatureValue = inputs[2] as Int
-            val dateTimeInfoValue = inputs[3] as Long
-            val listValue = inputs[4] as List<StatusVo>
-            val wifiValue = inputs[5] as Level
+            val currentTemperatureValue = inputs[4] as Int
+            val quShuiCount = inputs[2] as Int
+            val quShuiVolume = inputs[3] as Int
+            val dateTimeInfoValue = inputs[5] as Long
+            val listValue = inputs[6] as List<StatusVo>
+            val wifiValue = inputs[7] as Level
             HomeState(
-                leftInfo = LeftInfoVo(inputs[0] as Int),
-                rightInfo = RightInfoVo(savedBottlesValue, savedBottlesValue.formatBottlesNumber()),
+                gServiceInfo = GServiceInfoVo(inputs[0] as Int),
+                bottlesInfo = BottlesInfoVo(savedBottlesValue, savedBottlesValue.formatBottlesNumber()),
+                quShuiCount = QuShuiCountInfoVo(quShuiCount,quShuiCount.formatBottlesNumber()),
+                quShuiVolume = QuShuiVolumeInfoVo(quShuiVolume,quShuiCount.formatBottlesNumber()),
                 tempInfo = TempInfoVo(currentTemperatureValue),
                 dateTimeInfo = dateTimeInfoValue.timestamp2str(),
                 statusListInfo = listValue,
@@ -137,6 +149,18 @@ class HomeViewModel : ViewModel() {
             launch {
                 DataManager.savedBottles.collect {
                     changSavedBottles(it)
+                }
+            }
+
+            launch {
+                DataManager.quShuiCountFlow.collect {
+                    quShuiCount.value = it
+                }
+            }
+
+            launch {
+                DataManager.quShuiVolumeFlow.collect {
+                    quShuiVolume.value = it/1000
                 }
             }
 
@@ -199,6 +223,14 @@ class HomeViewModel : ViewModel() {
 
 
         }
+    }
+
+    fun testA() {
+        DataManager.testA()
+    }
+
+    fun testB() {
+        DataManager.testB()
     }
 }
 

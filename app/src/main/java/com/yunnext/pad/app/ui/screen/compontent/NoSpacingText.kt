@@ -126,6 +126,7 @@ fun NoSpaceText(
                 }
             }
             drawText(textLayoutResult = textLayoutResult)
+//            drawText(textMeasurer="",text ="")
         }
     }
     Layout(

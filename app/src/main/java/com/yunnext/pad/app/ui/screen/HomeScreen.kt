@@ -1,12 +1,18 @@
 package com.yunnext.pad.app.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -73,6 +79,26 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 state.dateTimeInfo
             )
 
+            Row(
+                modifier = Modifier
+                    //.border(1.dp, color = Color.Red)
+                    .align(Alignment.TopCenter)
+                    .padding(top = 14.dp, start = 16.dp),
+
+                ) {
+                Button(onClick = {
+                    vm.testA()
+                }) {
+                    Text("a")
+                }
+
+                Button(onClick = {
+                    vm.testB()
+                }) {
+                    Text("b")
+                }
+            }
+
             WifiInfo(
                 modifier = Modifier
                     //.border(1.dp, color = Color.Red)
@@ -86,24 +112,66 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                     .align(Alignment.Center),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LeftInfo(
-                    modifier = Modifier
-                        //.border(1.dp, color = Color.Red)
-                        .weight(1f), state.leftInfo
-                )
+                //<editor-fold desc="Left">
+                Column(
+                    modifier = Modifier.weight(1f)
+                        //.background(color = randomZhongGuoSe().color.copy(.3f))
+                    ,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
+                    GServiceInfo(
+                        modifier = Modifier
+                            //.border(1.dp, color = Color.Red)
+                            , state.gServiceInfo
+                    )
+
+                    Spacer(Modifier.height(100.dp))
+
+                    SavedBottlesInfo(
+                        modifier = Modifier
+                            //.border(1.dp, color = Color.Red)
+                           , state.bottlesInfo
+                    )
+
+                }
+                //</editor-fold>
+
+
+                // center
                 CenterInfo(
                     modifier = Modifier
-                    //.border(1.dp, color = Color.Yellow)
-                    ,
+                        //.background(color = randomZhongGuoSe().color.copy(.3f))
+                            ,
                     info = state.tempInfo, state.statusListInfo
                 )
 
-                RightInfo(
+                //<editor-fold desc="Right">
+                Column(
                     modifier = Modifier
+                        .weight(1f)
+                        //.background(color = randomZhongGuoSe().color.copy(.3f))
+                    ,
+
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    QuShuiVolumeInfo(
+                        modifier = Modifier
                         //.border(1.dp, color = Color.Red)
-                        .weight(1f), state.rightInfo
-                )
+                        , state.quShuiVolume
+                    )
+
+                    Spacer(Modifier.height(100.dp))
+
+                    QuShuiCountInfo(
+                        modifier = Modifier
+                        //.border(1.dp, color = Color.Red)
+                        , state.quShuiCount
+                    )
+                }
+                //</editor-fold>
             }
 
         }

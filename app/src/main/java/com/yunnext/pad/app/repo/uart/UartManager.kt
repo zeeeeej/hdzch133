@@ -7,24 +7,34 @@ import com.bugull.okstream.pojo.SerialData
 
 class UartManager {
     private var _scm: SerialConnectionManager? = null
-    private var _recv:((ByteArray)->Unit)? = null
+    private var _recv: ((Array<ByteArray>) -> Unit)? = null
+
+    @OptIn(ExperimentalStdlibApi::class)
     private val _receiver: IActionReceiver = IActionReceiver { serialData: SerialData? ->
+        i("UartManager IActionReceiver: ${serialData?.rawData?.toHexString()}")
         serialData?.rawData?.let {
-            onRawDataChanged(it)
+            // 存在一次读取buffer包含多条协议的情况
+            val data = SerialProtocol.splitDataByMarkers(it)
+            onRawDataChanged(data = data.toTypedArray())
         }
     }
 
-    fun start(recv:(ByteArray)->Unit): Boolean {
+    fun start(recv: (Array<ByteArray>) -> Unit): Boolean {
         val scm = SerialConnectionManager(
             Options.OptionsBuilder()
                 .isDebug(true)
-                //.parser(XParser())
-                .writeDelay(200)
-                .readInterval(200)
+
+                .writeDelay(100)
+                .readInterval(100)
                 .build(),
             SerialProtocol.UART,
             SerialProtocol.BAUD_RATE
         )
+        // aa 55 0b 09 00 00 01 83 8d 55 bb
+        // aa 55 0b 10 00 00 01 83 94 55 bb
+        // aa 55 0b 12 00 00 01 82 95 55 bb 0b 12 00 00 01 80 93 55 bb
+        // aa 55 08 0d 18 25 55 bb 0d 3b 54 55 bb
+
         try {
             val r = scm.open()
             if (r) {
@@ -32,6 +42,7 @@ class UartManager {
                 scm.registerReceiver(_receiver)
                 _scm = scm
             }
+
             return r
         } catch (e: Exception) {
             e.printStackTrace()
@@ -54,7 +65,7 @@ class UartManager {
         }
     }
 
-    private fun onRawDataChanged(data: ByteArray) {
+    private fun onRawDataChanged(data: Array<ByteArray>) {
         _recv?.invoke(data)
     }
 }

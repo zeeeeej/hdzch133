@@ -1,7 +1,9 @@
 package com.yunnext.pad.app
 
 import com.yunnext.pad.app.repo.uart.SerialProtocol
+import com.yunnext.pad.app.repo.uart.UartUp
 import com.yunnext.pad.app.repo.uart.UartUpCmd
+import com.yunnext.pad.app.repo.uart.encode
 import com.yunnext.pad.app.repo.uart.toArray
 import com.yunnext.pad.app.repo.uart.toByteArray2
 import org.junit.Test
@@ -134,6 +136,39 @@ class TestSerialProtocol {
         val payload = raw.toByteArray2()
         println("payload:${payload.toHexString()}")
         assert("1234" == payload.toHexString())
+    }
+
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
+    fun `DateUpTest`(){
+        // aa55 0d 0f 07e905080a27 3d 55bb
+        val data = "07e905080a27"
+        val up = UartUp.DateUp.from(data.hexToByteArray())
+        println(up)
+        assert(up.year == 2025)
+    }
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
+    fun `QuShuiCountUp`(){
+        // aa55 0b 10 00000063 73 55bb
+        val data  = UartUp.QuShuiCountUp(99).encode()
+        println(data.toHexString())
+    }
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
+    fun `GetAllUp_from`(){
+        // aa55 0b 10 00000063 73 55bb
+        val data = "0101010201000F0607E808091028"
+        // 010101
+        // 020100
+        // 0F0607E808091028
+        println( data.hexToByteArray().copyOfRange(3, 3+2).toHexString())
+        val up  = UartUp.GetAllUp.from(data.hexToByteArray())
+        println(up)
+        assert(up.value.size==3)
     }
 
 

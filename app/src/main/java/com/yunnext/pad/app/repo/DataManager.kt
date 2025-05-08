@@ -2,10 +2,12 @@ package com.yunnext.pad.app.repo
 
 import com.yunnext.pad.app.repo.uart.i
 import com.yunnext.pad.app.repo.uart.ChuSHuiType
+import com.yunnext.pad.app.repo.uart.UartDown
 import com.yunnext.pad.app.repo.uart.UartError
 import com.yunnext.pad.app.repo.uart.UartManager
 import com.yunnext.pad.app.repo.uart.UartUp
 import com.yunnext.pad.app.repo.uart.encode
+import com.yunnext.pad.app.repo.uart.toTimestamps
 import com.yunnext.pad.app.ui.screen.vo.Level
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -68,6 +70,8 @@ object DataManager {
 
     private val _serviceDaysFlow: MutableStateFlow<Int> = MutableStateFlow(0)
     private val _savedBottlesFlow: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val _quShuiCountFlow: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val _quShuiVolumeFlow: MutableStateFlow<Int> = MutableStateFlow(0)
     private val _currentTemperatureFlow: MutableStateFlow<Int> = MutableStateFlow(0)
     private val _dateTimeInfoFlow: MutableStateFlow<Long> = MutableStateFlow(0L)
     private val _wifiFlow: MutableStateFlow<Level> = MutableStateFlow(Level.NaN)
@@ -82,6 +86,8 @@ object DataManager {
 
     val serviceDays = _serviceDaysFlow.asStateFlow()
     val savedBottles = _savedBottlesFlow.asStateFlow()
+    val quShuiCountFlow = _quShuiCountFlow.asStateFlow()
+    val quShuiVolumeFlow = _quShuiVolumeFlow.asStateFlow()
     val currentTemperature = _currentTemperatureFlow.asStateFlow()
     val dateTimeInfo = _dateTimeInfoFlow.asStateFlow()
     val wifi = _wifiFlow.asStateFlow()
@@ -95,84 +101,154 @@ object DataManager {
     val error = _errorFlow.asStateFlow()
 
     private val _uartChannel = Channel<ByteArray>()
+
     init {
         coroutineScope.launch {
-            _uartChannel.receiveAsFlow().collect{data->
+            _uartChannel.receiveAsFlow().collect { data ->
                 parseData(data)
             }
         }
     }
     //</editor-fold>
 
+    @OptIn(ExperimentalStdlibApi::class)
+    fun testA() {
+        //val data = "AA550802010355BB".hexToByteArray()
+//        val data = "AA550802010355BB".hexToByteArray()
+        val data = "AA550811011255BB".hexToByteArray()
+        _uartManager?.write(data)
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    fun testB() {
+//        val data = "AA550802000255BB".hexToByteArray()
+        val data = "AA550811021355BB".hexToByteArray()
+        _uartManager?.write(data)
+    }
+
+    private fun writeUartForGetAll() {
+        val uartManager = _uartManager ?: return
+        uartManager.write(UartDown.GetAllDown.encode())
+    }
+
     fun init() {
         val uartManager = UartManager()
-        uartManager.start { data ->
-            _uartChannel.trySend(data)
+        val result = uartManager.start { data ->
+            if (data.isNotEmpty()) {
+                data.forEach { item ->
+                    _uartChannel.trySend(item)
+                }
+            }
         }
+        if (!result) {
+            println("uart open fail ！！！")
+            return
+        }
+        println("uart open success ！！!")
         _uartManager = uartManager
 
+        coroutineScope.launch {
+            delay(1000)
+            writeUartForGetAll()
+        }
+
+//        coroutineScope.launch {
+//            while (isActive){
+//                delay(5000)
+//                val data  = UartUp.SavedBottlesUp(Random.nextInt(9999)).encode()
+//                uartManager.write(data)
+//            }
+//        }
+
         // simpleMock()
-        simpleByteArray()
+        // simpleByteArray()
     }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun parseData(data: ByteArray) {
         try {
             i("[$TAG]<parseData>${data.toHexString()}")
-            when (val uartUp = UartUp.decode(data = data)) {
-                is UartUp.ChildLockUp -> {}
-                is UartUp.ChuShuiUp -> {
-                    _queShuiStatusFlow.value = uartUp.value != ChuSHuiType.NaN
-                }
+            fun handle(uartUp: UartUp) {
+                when (uartUp) {
+                    is UartUp.ChildLockUp -> {}
+                    is UartUp.ChuShuiUp -> {
+                        _queShuiStatusFlow.value = uartUp.value != ChuSHuiType.NaN
+                    }
 
-                is UartUp.ErrorUp -> {
-                    _errorFlow.value = uartUp.value
-                }
+                    is UartUp.ErrorUp -> {
+                        _errorFlow.value = uartUp.value
+                    }
 
-                is UartUp.FilterUp -> {
+                    is UartUp.FilterUp -> {
 
-                }
+                    }
 
-                is UartUp.JiaReUp -> {
-                    _jiaReStatusFlow.value = uartUp.value
-                }
+                    is UartUp.JiaReUp -> {
+                        _jiaReStatusFlow.value = uartUp.value
+                    }
 
-                is UartUp.JieNengUp -> {
-                    _jieNengStatusFlow.value = uartUp.value
-                }
+                    is UartUp.JieNengUp -> {
+                        _jieNengStatusFlow.value = uartUp.value
+                    }
 
-                is UartUp.OnOffUp -> {
+                    is UartUp.OnOffUp -> {
 
-                }
+                    }
 
-                is UartUp.QueShuiUp -> {
-                    _queShuiStatusFlow.value = uartUp.value
-                }
+                    is UartUp.QueShuiUp -> {
+                        _queShuiStatusFlow.value = uartUp.value
+                    }
 
-                is UartUp.SavedBottlesUp -> {
-                    _savedBottlesFlow.value = uartUp.value
-                }
+                    is UartUp.SavedBottlesUp -> {
+                        _savedBottlesFlow.value = uartUp.value
+                    }
 
-                is UartUp.ServiceDaysUp -> {
-                    _serviceDaysFlow.value = uartUp.value
-                }
+                    is UartUp.ServiceDaysUp -> {
+                        _serviceDaysFlow.value = uartUp.value
+                    }
 
-                is UartUp.ShaJunUp -> {
-                    _shaJunStatusFlow.value = uartUp.value
-                }
+                    is UartUp.ShaJunUp -> {
+                        _shaJunStatusFlow.value = uartUp.value
+                    }
 
-                is UartUp.TemperatureUp -> {
-                    _currentTemperatureFlow.value = uartUp.value
-                }
+                    is UartUp.TemperatureUp -> {
+                        _currentTemperatureFlow.value = uartUp.value
+                    }
 
-                is UartUp.WifiUp -> {
-                    _wifiFlow.value = uartUp.value
-                }
+                    is UartUp.WifiUp -> {
+                        _wifiFlow.value = uartUp.value
+                    }
 
-                is UartUp.ZhiShuiUp -> {
-                    _zhiShuiStatusFlow.value = uartUp.value
+                    is UartUp.ZhiShuiUp -> {
+                        _zhiShuiStatusFlow.value = uartUp.value
+                    }
+
+                    is UartUp.YinYongUp -> {
+                        _yinYongStatusFlow.value = uartUp.value
+                    }
+
+                    is UartUp.DateUp -> {
+                        _dateTimeInfoFlow.value = uartUp.toTimestamps()
+                    }
+
+                    is UartUp.QuShuiCountUp -> {
+                        _quShuiCountFlow.value = uartUp.value
+                    }
+
+                    is UartUp.QuShuiVolumeUp -> {
+                        _quShuiVolumeFlow.value = uartUp.value
+                    }
+
+                    is UartUp.GetAllUp -> {
+                        uartUp.value.forEach { item ->
+                            if (item !is UartUp.GetAllUp) {
+                                handle(item)
+                            }
+                        }
+                    }
                 }
             }
+            handle(UartUp.decode(data = data))
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -184,13 +260,13 @@ object DataManager {
     }
 
     @OptIn(ExperimentalStdlibApi::class)
-    private fun simpleByteArray(){
+    private fun simpleByteArray() {
         coroutineScope.launch {
 
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.SavedBottlesUp(Random.nextInt(9999)).encode()
+                    val data = UartUp.SavedBottlesUp(Random.nextInt(9999)).encode()
                     //aa55 0b 09 bd100000 d6 55bb
                     println("SavedBottlesUp:${data.toHexString()}")
                     _uartChannel.trySend(data)
@@ -200,7 +276,7 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.ServiceDaysUp(Random.nextInt(9999)).encode()
+                    val data = UartUp.ServiceDaysUp(Random.nextInt(9999)).encode()
                     _uartChannel.trySend(data)
                 }
             }
@@ -208,7 +284,7 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.TemperatureUp(Random.nextInt(100)).encode()
+                    val data = UartUp.TemperatureUp(Random.nextInt(100)).encode()
                     _uartChannel.trySend(data)
                 }
             }
@@ -224,7 +300,7 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(2000)
-                    val data  = UartUp.WifiUp(Level.random()).encode()
+                    val data = UartUp.WifiUp(Level.random()).encode()
 
                     _uartChannel.trySend(data)
                 }
@@ -232,7 +308,7 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.ZhiShuiUp(Random.nextBoolean()).encode()
+                    val data = UartUp.ZhiShuiUp(Random.nextBoolean()).encode()
 
                     _uartChannel.trySend(data)
                 }
@@ -241,7 +317,8 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.JiaReUp(Random.nextBoolean()).encode()
+                    val data = UartUp.YinYongUp(Random.nextBoolean()).encode()
+
                     _uartChannel.trySend(data)
                 }
             }
@@ -249,21 +326,29 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.ZhiShuiUp(Random.nextBoolean()).encode()
+                    val data = UartUp.JiaReUp(Random.nextBoolean()).encode()
+                    _uartChannel.trySend(data)
+                }
+            }
+
+            launch {
+                while (isActive) {
+                    delay(1000)
+                    val data = UartUp.ZhiShuiUp(Random.nextBoolean()).encode()
                     _uartChannel.trySend(data)
                 }
             }
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.QueShuiUp(Random.nextBoolean()).encode()
+                    val data = UartUp.QueShuiUp(Random.nextBoolean()).encode()
                     _uartChannel.trySend(data)
                 }
             }
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.JieNengUp(Random.nextBoolean()).encode()
+                    val data = UartUp.JieNengUp(Random.nextBoolean()).encode()
                     _uartChannel.trySend(data)
 
                 }
@@ -278,7 +363,7 @@ object DataManager {
             launch {
                 while (isActive) {
                     delay(1000)
-                    val data  = UartUp.ShaJunUp(Random.nextBoolean()).encode()
+                    val data = UartUp.ShaJunUp(Random.nextBoolean()).encode()
                     _uartChannel.trySend(data)
                 }
             }

@@ -1,3 +1,3 @@
 package com.yunnext.pad.app.ui.screen.vo
 
-data class LeftInfoVo(val value:Int)
+data class GServiceInfoVo(val value:Int)
