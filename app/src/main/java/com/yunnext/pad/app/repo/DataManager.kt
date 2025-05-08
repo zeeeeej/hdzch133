@@ -8,6 +8,11 @@ import com.yunnext.pad.app.repo.uart.UartManager
 import com.yunnext.pad.app.repo.uart.UartUp
 import com.yunnext.pad.app.repo.uart.encode
 import com.yunnext.pad.app.repo.uart.toTimestamps
+import com.yunnext.pad.app.ui.screen.vo.DebugCase01Vo
+import com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo
+import com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo
+import com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo
+import com.yunnext.pad.app.ui.screen.vo.DebugVo
 import com.yunnext.pad.app.ui.screen.vo.Level
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -111,19 +116,15 @@ object DataManager {
     }
     //</editor-fold>
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun testA() {
-        //val data = "AA550802010355BB".hexToByteArray()
-//        val data = "AA550802010355BB".hexToByteArray()
-        val data = "AA550811011255BB".hexToByteArray()
-        _uartManager?.write(data)
-    }
 
     @OptIn(ExperimentalStdlibApi::class)
-    fun testB() {
-//        val data = "AA550802000255BB".hexToByteArray()
-        val data = "AA550811021355BB".hexToByteArray()
-        _uartManager?.write(data)
+    fun debug(debug: DebugVo) {
+        when (debug) {
+            DebugCase03Vo -> _uartManager?.write("AA550811011255BB".hexToByteArray())
+            DebugCase04Vo -> _uartManager?.write("AA550811021355BB".hexToByteArray())
+            DebugCase01Vo -> _uartManager?.write("AA550802010355BB".hexToByteArray())
+            DebugCase02Vo -> _uartManager?.write("AA550802000255BB".hexToByteArray())
+        }
     }
 
     private fun writeUartForGetAll() {

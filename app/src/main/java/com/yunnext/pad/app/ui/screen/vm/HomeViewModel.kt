@@ -8,6 +8,7 @@ import com.yunnext.pad.app.ui.screen.vo.DateTimeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.GServiceInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Level
 import com.yunnext.pad.app.ui.screen.vo.BottlesInfoVo
+import com.yunnext.pad.app.ui.screen.vo.DebugVo
 import com.yunnext.pad.app.ui.screen.vo.QuShuiCountInfoVo
 import com.yunnext.pad.app.ui.screen.vo.QuShuiVolumeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Status
@@ -32,7 +33,8 @@ data class HomeState(
     val tempInfo: TempInfoVo,
     val dateTimeInfo: DateTimeInfoVo,
     val statusListInfo: List<StatusVo>,
-    val wifiInfo: WifiInfoVo
+    val wifiInfo: WifiInfoVo,
+    val debug:List<DebugVo>
 ) {
     companion object {
         internal val DEFAULT = HomeState(
@@ -43,7 +45,7 @@ data class HomeState(
             quShuiVolume = QuShuiVolumeInfoVo(0,"0"),
             dateTimeInfo = DateTimeInfoVo("2000", "1", "1", "00", "00"),
             statusListInfo = emptyList(),
-            wifiInfo = WifiInfoVo(Level.NaN)
+            wifiInfo = WifiInfoVo(Level.NaN), debug = emptyList()
         )
     }
 }
@@ -97,7 +99,12 @@ class HomeViewModel : ViewModel() {
                 tempInfo = TempInfoVo(currentTemperatureValue),
                 dateTimeInfo = dateTimeInfoValue.timestamp2str(),
                 statusListInfo = listValue,
-                wifiInfo = WifiInfoVo(wifiValue)
+                wifiInfo = WifiInfoVo(wifiValue), debug = listOf(
+                    com.yunnext.pad.app.ui.screen.vo.DebugCase01Vo,
+                    com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo,
+                    com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo,
+                    com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo,
+                )
             )
         }
 
@@ -225,12 +232,8 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun testA() {
-        DataManager.testA()
-    }
-
-    fun testB() {
-        DataManager.testB()
+    fun debug(debug: DebugVo) {
+        DataManager.debug(debug = debug)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.yunnext.pad.app.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +31,7 @@ import com.yunnext.pad.app.ui.screen.compontent.ComposeIcon
 import com.yunnext.pad.app.ui.screen.compontent.ImageComponent
 import com.yunnext.pad.app.ui.screen.vm.HomeState
 import com.yunnext.pad.app.ui.screen.vm.HomeViewModel
+import com.yunnext.pad.app.ui.screen.vo.DebugVo
 
 private const val DEBUG = false
 
@@ -79,25 +83,7 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 state.dateTimeInfo
             )
 
-            Row(
-                modifier = Modifier
-                    //.border(1.dp, color = Color.Red)
-                    .align(Alignment.TopCenter)
-                    .padding(top = 14.dp, start = 16.dp),
 
-                ) {
-                Button(onClick = {
-                    vm.testA()
-                }) {
-                    Text("a")
-                }
-
-                Button(onClick = {
-                    vm.testB()
-                }) {
-                    Text("b")
-                }
-            }
 
             WifiInfo(
                 modifier = Modifier
@@ -174,10 +160,18 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 //</editor-fold>
             }
 
+
+                _DebugInfo(modifier=Modifier   .align(Alignment.TopCenter),list = state.debug){
+                    vm.debug(it)
+                }
+
+
         }
     }
 
 }
+
+
 
 
 
