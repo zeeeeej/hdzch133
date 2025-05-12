@@ -70,4 +70,21 @@ fun myTextStyle(fontSize: TextUnit,color:Color =Color.White,number:Boolean = fal
     }
 }
 
+val HDText75 = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = FontWeight.Normal,
+    fontSize = 12.sp,
+    lineHeight = 24.sp,
+    letterSpacing = 0.5.sp,
+    color = Color.White
+)
+
+val HDText20 = TextStyle(
+    fontSize = 20.sp,
+    lineHeight = 20.sp,
+    letterSpacing = 0.5.sp,
+    fontWeight = FontWeight(400),
+    color = Color.White.copy(alpha = .75f)
+)
+
 
