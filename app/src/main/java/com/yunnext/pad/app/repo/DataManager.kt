@@ -162,7 +162,7 @@ object DataManager {
 //        }
 
         // simpleMock()
-        // simpleByteArray()
+         simpleByteArray()
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -300,7 +300,7 @@ object DataManager {
 
             launch {
                 while (isActive) {
-                    delay(2000)
+                    delay(500)
                     val data = UartUp.WifiUp(Level.random()).encode()
 
                     _uartChannel.trySend(data)

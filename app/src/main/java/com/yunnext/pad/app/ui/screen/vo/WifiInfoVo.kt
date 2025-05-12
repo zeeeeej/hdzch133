@@ -6,10 +6,10 @@ import kotlin.random.Random
 
 sealed interface Level {
     data object NaN : Level
-    data class Signal(val value: Int) : Level
+    data class Signal(val value: Int,val dbm:Int) : Level
 
     companion object {
-        internal fun random() = from(Random.nextInt(5))
+        internal fun random() = from(Random.nextInt(150))
 
         fun from(value: Int) =
 //            when (value) {
@@ -23,11 +23,11 @@ sealed interface Level {
 //            }
 
             when (value) {
-                in Int.MIN_VALUE..0 -> Level.Signal(0)
-                in 1..50 -> Level.Signal(4)
-                in 51..80 -> Level.Signal(3)
-                in 81..100 -> Level.Signal(2)
-                in 101..Int.MAX_VALUE -> Signal(1)
+                in Int.MIN_VALUE..0 -> Level.Signal(0,value)
+                in 1..50 -> Level.Signal(4,value)
+                in 51..80 -> Level.Signal(3,value)
+                in 81..100 -> Level.Signal(2,value)
+                in 101..Int.MAX_VALUE -> Signal(1,value)
                 else -> throw IllegalStateException("不会走到此分支")
             }
     }

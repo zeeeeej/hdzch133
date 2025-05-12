@@ -415,7 +415,7 @@ fun UartUp.encode(): ByteArray {
         is UartUp.WifiUp -> SerialProtocol.create(
             UartUpCmd.WiFiCmd.value, when (this.value) {
                 Level.NaN -> 0x00
-                is Level.Signal -> this.value.value
+                is Level.Signal -> this.value.dbm
             }.toByteArray1()
         )
 
