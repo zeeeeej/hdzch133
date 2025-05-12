@@ -12,13 +12,22 @@ sealed interface Level {
         internal fun random() = from(Random.nextInt(5))
 
         fun from(value: Int) =
+//            when (value) {
+//                in Int.MIN_VALUE..0 -> Level.Signal(0)
+//                in 1..7 -> Level.Signal(1)
+//                in 8..15 -> Level.Signal(2)
+//                in 16..25 -> Level.Signal(3)
+//                in 26..31 -> Level.Signal(4)
+//                in 32..Int.MAX_VALUE -> Signal(4)
+//                else -> throw IllegalStateException("不会走到此分支")
+//            }
+
             when (value) {
                 in Int.MIN_VALUE..0 -> Level.Signal(0)
-                in 1..7 -> Level.Signal(1)
-                in 8..15 -> Level.Signal(2)
-                in 16..25 -> Level.Signal(3)
-                in 26..31 -> Level.Signal(4)
-                in 32..Int.MAX_VALUE -> Signal(4)
+                in 1..50 -> Level.Signal(4)
+                in 51..80 -> Level.Signal(3)
+                in 81..100 -> Level.Signal(2)
+                in 101..Int.MAX_VALUE -> Signal(1)
                 else -> throw IllegalStateException("不会走到此分支")
             }
     }
