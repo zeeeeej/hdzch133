@@ -1,7 +1,10 @@
 package com.yunnext.pad.app.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +21,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -35,6 +42,7 @@ import com.yunnext.pad.app.ui.screen.vo.DebugVo
 
 private const val DEBUG = false
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
     val vm: HomeViewModel = viewModel()
@@ -75,8 +83,16 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
             //.safeContentPadding()
         ) {
 
+            var showDebug: Boolean by remember {
+                mutableStateOf(false)
+            }
             DateTimeInfo(
                 modifier = Modifier
+                    .combinedClickable(onLongClick = {
+                        showDebug = !showDebug
+                    }, onLongClickLabel = "c") {
+
+                    }
                     //.border(1.dp, color = Color.Red)
                     .align(Alignment.TopStart)
                     .padding(top = 14.dp, start = 16.dp),
@@ -92,6 +108,7 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                     .padding(top = 14.dp, end = 16.dp), state.wifiInfo
             )
 
+
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -101,7 +118,7 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 //<editor-fold desc="Left">
                 Column(
                     modifier = Modifier.weight(1f)
-                        //.background(color = randomZhongGuoSe().color.copy(.3f))
+                    //.background(color = randomZhongGuoSe().color.copy(.3f))
                     ,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -109,16 +126,16 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
 
                     GServiceInfo(
                         modifier = Modifier
-                            //.border(1.dp, color = Color.Red)
-                            , state.gServiceInfo
+                        //.border(1.dp, color = Color.Red)
+                        , state.gServiceInfo
                     )
 
                     Spacer(Modifier.height(100.dp))
 
                     SavedBottlesInfo(
                         modifier = Modifier
-                            //.border(1.dp, color = Color.Red)
-                           , state.bottlesInfo
+                        //.border(1.dp, color = Color.Red)
+                        , state.bottlesInfo
                     )
 
                 }
@@ -128,8 +145,8 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 // center
                 CenterInfo(
                     modifier = Modifier
-                        //.background(color = randomZhongGuoSe().color.copy(.3f))
-                            ,
+                    //.background(color = randomZhongGuoSe().color.copy(.3f))
+                    ,
                     info = state.tempInfo, state.statusListInfo
                 )
 
@@ -137,7 +154,7 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        //.background(color = randomZhongGuoSe().color.copy(.3f))
+                    //.background(color = randomZhongGuoSe().color.copy(.3f))
                     ,
 
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -160,12 +177,11 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 //</editor-fold>
             }
 
-
-                _DebugInfo(modifier=Modifier   .align(Alignment.TopCenter),list = state.debug){
+            AnimatedVisibility(modifier = Modifier.fillMaxWidth(),visible = showDebug) {
+                _DebugInfo(modifier = Modifier.align(Alignment.TopCenter), list = state.debug) {
                     vm.debug(it)
                 }
-
-
+            }
         }
     }
 

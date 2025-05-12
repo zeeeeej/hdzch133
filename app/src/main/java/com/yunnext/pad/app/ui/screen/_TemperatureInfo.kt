@@ -30,7 +30,7 @@ internal fun TemperatureInfo(modifier: Modifier = Modifier, temp: Int, unit: Str
             NoSpaceText(
                 text = "$it",
                 style = myTextStyle(280.sp, color = Color.White,number = true),
-                modifier = Modifier.border(1.dp,Color.Red)
+                modifier = Modifier//.border(1.dp,Color.Red)
             )
         }
 

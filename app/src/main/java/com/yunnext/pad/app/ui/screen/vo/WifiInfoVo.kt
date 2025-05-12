@@ -1,6 +1,7 @@
 package com.yunnext.pad.app.ui.screen.vo
 
 import com.yunnext.pad.app.R
+import java.lang.IllegalStateException
 import kotlin.random.Random
 
 sealed interface Level {
@@ -10,14 +11,16 @@ sealed interface Level {
     companion object {
         internal fun random() = from(Random.nextInt(5))
 
-        fun from(value: Int) = when (value) {
-            0 -> Level.Signal(0)
-            1 -> Level.Signal(1)
-            2 -> Level.Signal(2)
-            3 -> Level.Signal(3)
-            4 -> Level.Signal(4)
-            else -> Level.NaN
-        }
+        fun from(value: Int) =
+            when (value) {
+                in Int.MIN_VALUE..0 -> Level.Signal(0)
+                in 1..7 -> Level.Signal(1)
+                in 8..15 -> Level.Signal(2)
+                in 16..25 -> Level.Signal(3)
+                in 26..31 -> Level.Signal(4)
+                in 32..Int.MAX_VALUE -> Signal(4)
+                else -> throw IllegalStateException("不会走到此分支")
+            }
     }
 }
 
