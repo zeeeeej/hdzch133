@@ -42,6 +42,8 @@ internal fun _DebugInfo(
                 }
             }
         }
+
+        // uart inputs
     }
 }
 

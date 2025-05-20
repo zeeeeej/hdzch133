@@ -14,6 +14,11 @@ class TestSerialProtocol {
     @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun `parseTotalLength`() {
+
+        val now: Int = (System.currentTimeMillis() / 1000).toInt()
+        println("now : ${now}")
+        println("now : ${now.toHexString()}")
+
         // AA55 08 0001 01 55BB
         val data = "AA550800010155BB"
         val dataByteArray = data.hexToByteArray()
@@ -45,7 +50,7 @@ class TestSerialProtocol {
 
         val parseCmdAndPayload = SerialProtocol.parseCmdAndPayload(dataByteArray)
         println("parseCmdAndPayload:${parseCmdAndPayload.toHexString()}")
-        assert("0001"==parseCmdAndPayload.toHexString())
+        assert("0001" == parseCmdAndPayload.toHexString())
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -57,7 +62,7 @@ class TestSerialProtocol {
         println("data:${dataByteArray.toHexString()}")
         val parseCRC = SerialProtocol.parseCRC(dataByteArray)
         println("parseCRC:${parseCRC.toHexString()}")
-        assert("01"==parseCRC.toHexString())
+        assert("01" == parseCRC.toHexString())
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -99,7 +104,7 @@ class TestSerialProtocol {
         println("data:${dataByteArray.toHexString()}")
         val calCRC = SerialProtocol.calCRC(SerialProtocol.parseCmdAndPayload(dataByteArray))
         println("calCRC:${calCRC.toHexString()}")
-        assert(SerialProtocol.parseCRC(dataByteArray).toHexString()==calCRC.toHexString())
+        assert(SerialProtocol.parseCRC(dataByteArray).toHexString() == calCRC.toHexString())
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -141,7 +146,7 @@ class TestSerialProtocol {
 
     @Test
     @OptIn(ExperimentalStdlibApi::class)
-    fun `DateUpTest`(){
+    fun `DateUpTest`() {
         // aa55 0d 0f 07e905080a27 3d 55bb
         val data = "07e905080a27"
         val up = UartUp.DateUp.from(data.hexToByteArray())
@@ -151,24 +156,36 @@ class TestSerialProtocol {
 
     @Test
     @OptIn(ExperimentalStdlibApi::class)
-    fun `QuShuiCountUp`(){
+    fun `QuShuiCountUp`() {
         // aa55 0b 10 00000063 73 55bb
-        val data  = UartUp.QuShuiCountUp(99).encode()
+        val data = UartUp.QuShuiCountUp(99).encode()
         println(data.toHexString())
     }
 
     @Test
     @OptIn(ExperimentalStdlibApi::class)
-    fun `GetAllUp_from`(){
+    fun `GetAllUp_from`() {
         // aa55 0b 10 00000063 73 55bb
         val data = "0101010201000F0607E808091028"
         // 010101
         // 020100
         // 0F0607E808091028
-        println( data.hexToByteArray().copyOfRange(3, 3+2).toHexString())
-        val up  = UartUp.GetAllUp.from(data.hexToByteArray())
+        println(data.hexToByteArray().copyOfRange(3, 3 + 2).toHexString())
+        val up = UartUp.GetAllUp.from(data.hexToByteArray())
         println(up)
-        assert(up.value.size==3)
+        assert(up.value.size == 3)
+    }
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
+    fun `splitDataByMarkers`() {
+        val data = "aa550807010855bbaa550907010855bb121313".hexToByteArray()
+        val splitDataByMarkers = SerialProtocol.splitDataByMarkers(input = data)
+        if (splitDataByMarkers.isEmpty()) return
+        println("->size = " + splitDataByMarkers.size)
+        splitDataByMarkers.forEach {
+            println("->" + it.toHexString())
+        }
     }
 
 

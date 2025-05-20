@@ -7,7 +7,7 @@ import com.bugull.okstream.pojo.SerialData
 
 class UartManager {
     private var _scm: SerialConnectionManager? = null
-    private var _recv: ((Array<ByteArray>) -> Unit)? = null
+    private var _recv: ((Array<ByteArray>,ByteArray) -> Unit)? = null
 
     @OptIn(ExperimentalStdlibApi::class)
     private val _receiver: IActionReceiver = IActionReceiver { serialData: SerialData? ->
@@ -15,11 +15,13 @@ class UartManager {
         serialData?.rawData?.let {
             // 存在一次读取buffer包含多条协议的情况
             val data = SerialProtocol.splitDataByMarkers(it)
-            onRawDataChanged(data = data.toTypedArray())
+            onRawDataChanged(data = data.toTypedArray(),it)
         }
     }
 
-    fun start(recv: (Array<ByteArray>) -> Unit): Boolean {
+
+
+    fun start(recv: (Array<ByteArray>,ByteArray) -> Unit): Boolean {
         val scm = SerialConnectionManager(
             Options.OptionsBuilder()
                 .isDebug(true)
@@ -65,7 +67,7 @@ class UartManager {
         }
     }
 
-    private fun onRawDataChanged(data: Array<ByteArray>) {
-        _recv?.invoke(data)
+    private fun onRawDataChanged(data: Array<ByteArray>,raw:ByteArray) {
+        _recv?.invoke(data,raw)
     }
 }

@@ -1,5 +1,6 @@
 package com.yunnext.pad.app.repo
 
+import com.yunnext.pad.app.BuildConfig
 import com.yunnext.pad.app.repo.uart.i
 import com.yunnext.pad.app.repo.uart.ChuSHuiType
 import com.yunnext.pad.app.repo.uart.UartDown
@@ -21,7 +22,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
@@ -64,6 +67,7 @@ data class UartData(
 }
 
 
+@OptIn(ExperimentalStdlibApi::class)
 object DataManager {
     private const val TAG = "DataManager"
 
@@ -88,6 +92,8 @@ object DataManager {
     private val _shaJunStatusFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _yinYongStatusFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errorFlow: MutableStateFlow<UartError> = MutableStateFlow(UartError.Normal)
+    private val _uartUpRawFlow: MutableSharedFlow<String> = MutableSharedFlow()
+    private val _uartDownRawFlow: MutableSharedFlow<String> = MutableSharedFlow()
 
     val serviceDays = _serviceDaysFlow.asStateFlow()
     val savedBottles = _savedBottlesFlow.asStateFlow()
@@ -104,12 +110,18 @@ object DataManager {
     val shaJunStatus = _shaJunStatusFlow.asStateFlow()
     val yinYongStatus = _yinYongStatusFlow.asStateFlow()
     val error = _errorFlow.asStateFlow()
+    val uartUpRaw = _uartUpRawFlow.asSharedFlow()
+    val uartDownRaw = _uartDownRawFlow.asSharedFlow()
 
     private val _uartChannel = Channel<ByteArray>()
 
     init {
         coroutineScope.launch {
             _uartChannel.receiveAsFlow().collect { data ->
+                if (BuildConfig.DEBUG){
+                    _uartUpRawFlow.emit(data.toHexString())
+                }
+
                 parseData(data)
             }
         }
@@ -120,29 +132,51 @@ object DataManager {
     @OptIn(ExperimentalStdlibApi::class)
     fun debug(debug: DebugVo) {
         when (debug) {
-            DebugCase03Vo -> _uartManager?.write("AA550811011255BB".hexToByteArray())
-            DebugCase04Vo -> _uartManager?.write("AA550811021355BB".hexToByteArray())
-            DebugCase01Vo -> _uartManager?.write("AA550802010355BB".hexToByteArray())
-            DebugCase02Vo -> _uartManager?.write("AA550802000255BB".hexToByteArray())
+            DebugCase03Vo -> doWrite("AA550811011255BB".hexToByteArray())
+            DebugCase04Vo -> doWrite("AA550811021355BB".hexToByteArray())
+            DebugCase01Vo -> doWrite("AA550802010355BB".hexToByteArray())
+            DebugCase02Vo -> doWrite("AA550802000255BB".hexToByteArray())
         }
     }
 
-    private fun writeUartForGetAll() {
-        val uartManager = _uartManager ?: return
-        uartManager.write(UartDown.GetAllDown.encode())
+
+    @OptIn(ExperimentalStdlibApi::class)
+    internal fun doWrite(data: ByteArray){
+        val manager = _uartManager?:return
+        manager.write(data = data)
+        coroutineScope.launch {
+            _uartDownRawFlow.emit( data.toHexString())
+        }
+
     }
 
+    private fun writeUartForGetAll() {
+        doWrite(UartDown.GetAllDown.encode())
+    }
+
+    private fun combineByteArrays(arrays: Array<ByteArray>): ByteArray {
+        return arrays.fold(ByteArray(0)) { acc, byteArray ->
+            acc + byteArray
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
     fun init() {
         val uartManager = UartManager()
-        val result = uartManager.start { data ->
+        val result = uartManager.start { data,_ ->
             if (data.isNotEmpty()) {
                 data.forEach { item ->
                     _uartChannel.trySend(item)
+                }
+
+                coroutineScope.launch {
+                    _uartUpRawFlow.emit(combineByteArrays(data).toHexString())
                 }
             }
         }
         if (!result) {
             println("uart open fail ！！！")
+            simpleByteArray()
             return
         }
         println("uart open success ！！!")
@@ -161,8 +195,8 @@ object DataManager {
 //            }
 //        }
 
-        // simpleMock()
-         simpleByteArray()
+//         simpleMock()
+//         simpleByteArray()
     }
 
     @OptIn(ExperimentalStdlibApi::class)

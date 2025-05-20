@@ -86,7 +86,7 @@ class SerialProtocol {
         internal fun parseCRC(data: ByteArray) = data[data.size - 3]
 
         internal fun parsePayload(data: ByteArray) =
-            data.copyOfRange(4, 4+parsePayloadLength(data = data))
+            data.copyOfRange(4, 4 + parsePayloadLength(data = data))
 
         @OptIn(ExperimentalStdlibApi::class)
         fun create(cmd: Byte, payload: ByteArray?): ByteArray {
@@ -108,36 +108,50 @@ class SerialProtocol {
             return head + length + cmdArray + payloadArray + crc + tail
         }
 
-        fun splitDataByMarkers(data: ByteArray): List<ByteArray> {
-            val result = mutableListOf<ByteArray>()
-            var startIndex = 0
+        fun splitDataByMarkers(input: ByteArray): List<ByteArray> {
+            val startMarker = HEADER
+            val endMarker = TAIL
+            val validData = mutableListOf<ByteArray>()
+            var index = 0
 
-            while (startIndex < data.size - 3) { // 至少需要 4 字节（0xAA55 + 0x55BB）
-                // 查找 0xAA55 开头（假设大端序，即 0xAA 在前）
-                if (data[startIndex].toInt() == 0xAA.toByte().toInt() &&
-                    data[startIndex + 1].toInt() == 0x55.toByte().toInt()
-                ) {
+            while (index < input.size) {
+                // 查找起始标记
+                val startIndex = findSubarray(input, startMarker, index)
+                if (startIndex == -1) break
 
-                    // 从 startIndex 开始查找 0x55BB 结尾
-                    var endIndex = startIndex + 2
-                    while (endIndex < data.size - 1) {
-                        if (data[endIndex].toInt() == 0x55.toByte().toInt() &&
-                            data[endIndex + 1].toInt() == 0xBB.toByte().toInt()
-                        ) {
-                            // 提取匹配的块（包含头尾标记）
-                            val chunk = data.copyOfRange(startIndex, endIndex + 2)
-                            result.add(chunk)
-                            startIndex = endIndex + 2 // 跳过已处理的部分
-                            break
-                        }
-                        endIndex++
-                    }
-                }
-                startIndex++
+                // 从起始标记后开始查找结束标记
+                val endIndex = findSubarray(input, endMarker, startIndex + startMarker.size)
+                if (endIndex == -1) break
+
+                // 计算完整数据段的结束位置（包含结束标记）
+                val segmentEnd = endIndex + endMarker.size
+
+                // 提取完整数据段
+                val segment = input.copyOfRange(startIndex, segmentEnd)
+                validData.add(segment)
+
+                // 移动索引到当前段之后继续搜索
+                index = segmentEnd
             }
 
-            return result
+            return validData
         }
+
+        // 辅助函数：在字节数组中查找子数组
+        private fun findSubarray(source: ByteArray, target: ByteArray, fromIndex: Int = 0): Int {
+            if (target.isEmpty()) return 0
+            if (fromIndex >= source.size) return -1
+
+            outer@ for (i in fromIndex..source.size - target.size) {
+                for (j in target.indices) {
+                    if (source[i + j] != target[j]) continue@outer
+                }
+                return i
+
+            }
+            return -1
+        }
+
     }
 }
 

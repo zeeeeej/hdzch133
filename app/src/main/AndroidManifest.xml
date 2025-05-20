@@ -76,6 +76,13 @@
             android:exported="true"
             tools:ignore="DiscouragedApi">
 
+            <meta-data
+                android:name="BuguAppId"
+                android:value="682aaa161181657c49710381" />
+            <meta-data
+                android:name="BuguAppKey"
+                android:value="bdfc11461c0a4d638c258deacf4b0f2d" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

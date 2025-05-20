@@ -14,6 +14,9 @@ import com.yunnext.pad.app.ui.screen.vo.QuShuiVolumeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Status
 import com.yunnext.pad.app.ui.screen.vo.Status.*
 import com.yunnext.pad.app.ui.screen.vo.StatusVo
+import com.yunnext.pad.app.ui.screen.vo.UartDown
+import com.yunnext.pad.app.ui.screen.vo.UartUp
+import com.yunnext.pad.app.ui.screen.vo.UartVo
 import com.yunnext.pad.app.ui.screen.vo.WifiInfoVo
 import com.yunnext.pad.app.ui.screen.vo.res
 import com.yunnext.pad.app.ui.screen.vo.text
@@ -34,18 +37,19 @@ data class HomeState(
     val dateTimeInfo: DateTimeInfoVo,
     val statusListInfo: List<StatusVo>,
     val wifiInfo: WifiInfoVo,
-    val debug:List<DebugVo>
+    val debug: List<DebugVo>,
+    val inputList: List<UartVo>
 ) {
     companion object {
         internal val DEFAULT = HomeState(
             gServiceInfo = GServiceInfoVo(0),
             bottlesInfo = BottlesInfoVo(0, "0"),
             tempInfo = TempInfoVo(0),
-            quShuiCount = QuShuiCountInfoVo(0,"0"),
-            quShuiVolume = QuShuiVolumeInfoVo(0,"0"),
+            quShuiCount = QuShuiCountInfoVo(0, "0"),
+            quShuiVolume = QuShuiVolumeInfoVo(0, "0"),
             dateTimeInfo = DateTimeInfoVo("2000", "1", "1", "00", "00"),
             statusListInfo = emptyList(),
-            wifiInfo = WifiInfoVo(Level.NaN), debug = emptyList()
+            wifiInfo = WifiInfoVo(Level.NaN), debug = emptyList(), inputList = emptyList()
         )
     }
 }
@@ -82,8 +86,20 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private val inputList: MutableStateFlow<List<UartVo>> = MutableStateFlow(emptyList())
+
     val state: Flow<HomeState> =
-        combine(serviceDays, savedBottles, quShuiCount,quShuiVolume,currentTemperature, dateTimeInfo, list, wifi) { inputs ->
+        combine(
+            serviceDays,
+            savedBottles,
+            quShuiCount,
+            quShuiVolume,
+            currentTemperature,
+            dateTimeInfo,
+            list,
+            wifi,
+            inputList
+        ) { inputs ->
             val savedBottlesValue = inputs[1] as Int
             val currentTemperatureValue = inputs[4] as Int
             val quShuiCount = inputs[2] as Int
@@ -91,11 +107,15 @@ class HomeViewModel : ViewModel() {
             val dateTimeInfoValue = inputs[5] as Long
             val listValue = inputs[6] as List<StatusVo>
             val wifiValue = inputs[7] as Level
+            val inputListValue = inputs[8] as List<UartVo>
             HomeState(
                 gServiceInfo = GServiceInfoVo(inputs[0] as Int),
-                bottlesInfo = BottlesInfoVo(savedBottlesValue, savedBottlesValue.formatBottlesNumber()),
-                quShuiCount = QuShuiCountInfoVo(quShuiCount,quShuiCount.formatBottlesNumber()),
-                quShuiVolume = QuShuiVolumeInfoVo(quShuiVolume,quShuiCount.formatBottlesNumber()),
+                bottlesInfo = BottlesInfoVo(
+                    savedBottlesValue,
+                    savedBottlesValue.formatBottlesNumber()
+                ),
+                quShuiCount = QuShuiCountInfoVo(quShuiCount, quShuiCount.formatBottlesNumber()),
+                quShuiVolume = QuShuiVolumeInfoVo(quShuiVolume, quShuiCount.formatBottlesNumber()),
                 tempInfo = TempInfoVo(currentTemperatureValue),
                 dateTimeInfo = dateTimeInfoValue.timestamp2str(),
                 statusListInfo = listValue,
@@ -104,7 +124,8 @@ class HomeViewModel : ViewModel() {
                     com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo,
-                )
+                ),
+                inputList = inputListValue
             )
         }
 
@@ -167,7 +188,7 @@ class HomeViewModel : ViewModel() {
 
             launch {
                 DataManager.quShuiVolumeFlow.collect {
-                    quShuiVolume.value = it/1000
+                    quShuiVolume.value = it / 1000
                 }
             }
 
@@ -228,6 +249,22 @@ class HomeViewModel : ViewModel() {
                 }
             }
 
+            launch {
+                DataManager.uartUpRaw.collect {
+                    println("uartUpRaw :$it")
+                    val newList = listOf(UartUp(it))+ inputList.value
+                    inputList.value = newList
+                }
+            }
+
+            launch {
+                DataManager.uartDownRaw.collect {
+                    println("uartDownRaw :$it")
+                    val newList = listOf(UartDown(it))+ inputList.value
+                    inputList.value = newList
+                }
+            }
+
 
         }
     }
@@ -235,8 +272,11 @@ class HomeViewModel : ViewModel() {
     fun debug(debug: DebugVo) {
         DataManager.debug(debug = debug)
     }
-}
 
+    fun clearUart() {
+        this.inputList.value = emptyList()
+    }
+}
 
 
 private fun Int.formatBottlesNumber(): String {

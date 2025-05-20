@@ -177,10 +177,26 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
                 //</editor-fold>
             }
 
-            AnimatedVisibility(modifier = Modifier.fillMaxWidth(),visible = showDebug) {
-                _DebugInfo(modifier = Modifier.align(Alignment.TopCenter), list = state.debug) {
-                    vm.debug(it)
+            AnimatedVisibility(modifier = Modifier.fillMaxWidth(), visible = showDebug) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)) {
+                    _DebugInfo(modifier = Modifier.fillMaxWidth(), list = state.debug) {
+                        vm.debug(it)
+                    }
+                    Text("清空", color = Color.Red,modifier = Modifier.clickable {
+                        vm.clearUart()
+                    })
+
+                    _UartInfo(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Gray.copy(alpha = .3f))
+                            .padding(16.dp), list = state.inputList
+                    )
+
                 }
+
             }
         }
     }
