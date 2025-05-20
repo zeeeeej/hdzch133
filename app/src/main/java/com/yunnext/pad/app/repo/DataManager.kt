@@ -9,12 +9,22 @@ import com.yunnext.pad.app.repo.uart.UartManager
 import com.yunnext.pad.app.repo.uart.UartUp
 import com.yunnext.pad.app.repo.uart.encode
 import com.yunnext.pad.app.repo.uart.toTimestamps
-import com.yunnext.pad.app.ui.screen.vo.DebugCase01Vo
-import com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo
-import com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo
-import com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo
+import com.yunnext.pad.app.ui.screen.vo.ChildLockValue
+import com.yunnext.pad.app.ui.screen.vo.DebugValue
+
 import com.yunnext.pad.app.ui.screen.vo.DebugVo
+import com.yunnext.pad.app.ui.screen.vo.DrinkTempValue
+import com.yunnext.pad.app.ui.screen.vo.EcoValue
+import com.yunnext.pad.app.ui.screen.vo.FangShuiModeValue
+import com.yunnext.pad.app.ui.screen.vo.HeatTempValue
+import com.yunnext.pad.app.ui.screen.vo.HeatingValue
 import com.yunnext.pad.app.ui.screen.vo.Level
+import com.yunnext.pad.app.ui.screen.vo.PaiKongTimeValue
+import com.yunnext.pad.app.ui.screen.vo.PowerOffTimeValue
+import com.yunnext.pad.app.ui.screen.vo.PowerOnTimeValue
+import com.yunnext.pad.app.ui.screen.vo.ShaJunSwitchValue
+import com.yunnext.pad.app.ui.screen.vo.ShuiLiuBaoHuPulseValue
+import com.yunnext.pad.app.ui.screen.vo.TimeForPowerValue
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -118,7 +128,7 @@ object DataManager {
     init {
         coroutineScope.launch {
             _uartChannel.receiveAsFlow().collect { data ->
-                if (BuildConfig.DEBUG){
+                if (BuildConfig.DEBUG) {
                     _uartUpRawFlow.emit(data.toHexString())
                 }
 
@@ -129,23 +139,19 @@ object DataManager {
     //</editor-fold>
 
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun debug(debug: DebugVo) {
-        when (debug) {
-            DebugCase03Vo -> doWrite("AA550811011255BB".hexToByteArray())
-            DebugCase04Vo -> doWrite("AA550811021355BB".hexToByteArray())
-            DebugCase01Vo -> doWrite("AA550802010355BB".hexToByteArray())
-            DebugCase02Vo -> doWrite("AA550802000255BB".hexToByteArray())
-        }
+    fun debug(debug: DebugValue) {
+        val down = UartDown.Other(debug)
+        val data = down.encode()
+        doWrite(data = data)
     }
 
 
     @OptIn(ExperimentalStdlibApi::class)
-    internal fun doWrite(data: ByteArray){
-        val manager = _uartManager?:return
+    internal fun doWrite(data: ByteArray) {
+        val manager = _uartManager ?: return
         manager.write(data = data)
         coroutineScope.launch {
-            _uartDownRawFlow.emit( data.toHexString())
+            _uartDownRawFlow.emit(data.toHexString())
         }
 
     }
@@ -163,7 +169,7 @@ object DataManager {
     @OptIn(ExperimentalStdlibApi::class)
     fun init() {
         val uartManager = UartManager()
-        val result = uartManager.start { data,_ ->
+        val result = uartManager.start { data, _ ->
             if (data.isNotEmpty()) {
                 data.forEach { item ->
                     _uartChannel.trySend(item)
@@ -336,6 +342,24 @@ object DataManager {
                 while (isActive) {
                     delay(500)
                     val data = UartUp.WifiUp(Level.random()).encode()
+
+                    _uartChannel.trySend(data)
+                }
+            }
+
+            launch {
+                while (isActive) {
+                    delay(500)
+                    val data = UartUp.QuShuiVolumeUp(Random.nextInt(1000000)).encode()
+
+                    _uartChannel.trySend(data)
+                }
+            }
+
+            launch {
+                while (isActive) {
+                    delay(500)
+                    val data = UartUp.QuShuiCountUp(Random.nextInt(1000000)).encode()
 
                     _uartChannel.trySend(data)
                 }

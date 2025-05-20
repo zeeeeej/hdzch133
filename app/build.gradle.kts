@@ -8,13 +8,13 @@ android {
     namespace = "com.yunnext.pad.app"
     compileSdk = 34
 
-    val versionCodeCommon = 11
+    val versionCodeCommon = 13
     defaultConfig {
         applicationId = "com.yunnext.pad.app"
         minSdk = 28
         targetSdk = 31
         versionCode = versionCodeCommon
-        versionName = "1.2.$versionCodeCommon"
+        versionName = "0.0.$versionCodeCommon"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -3,11 +3,13 @@ package com.yunnext.pad.app.ui.screen.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yunnext.pad.app.repo.DataManager
+import com.yunnext.pad.app.repo.uart.i
 import com.yunnext.pad.app.ui.screen.vo.TempInfoVo
 import com.yunnext.pad.app.ui.screen.vo.DateTimeInfoVo
 import com.yunnext.pad.app.ui.screen.vo.GServiceInfoVo
 import com.yunnext.pad.app.ui.screen.vo.Level
 import com.yunnext.pad.app.ui.screen.vo.BottlesInfoVo
+import com.yunnext.pad.app.ui.screen.vo.DebugValue
 import com.yunnext.pad.app.ui.screen.vo.DebugVo
 import com.yunnext.pad.app.ui.screen.vo.QuShuiCountInfoVo
 import com.yunnext.pad.app.ui.screen.vo.QuShuiVolumeInfoVo
@@ -18,6 +20,7 @@ import com.yunnext.pad.app.ui.screen.vo.UartDown
 import com.yunnext.pad.app.ui.screen.vo.UartUp
 import com.yunnext.pad.app.ui.screen.vo.UartVo
 import com.yunnext.pad.app.ui.screen.vo.WifiInfoVo
+import com.yunnext.pad.app.ui.screen.vo.debugList
 import com.yunnext.pad.app.ui.screen.vo.res
 import com.yunnext.pad.app.ui.screen.vo.text
 import kotlinx.coroutines.flow.Flow
@@ -119,12 +122,13 @@ class HomeViewModel : ViewModel() {
                 tempInfo = TempInfoVo(currentTemperatureValue),
                 dateTimeInfo = dateTimeInfoValue.timestamp2str(),
                 statusListInfo = listValue,
-                wifiInfo = WifiInfoVo(wifiValue), debug = listOf(
+                wifiInfo = WifiInfoVo(wifiValue)
+                ,debugList/* debug = listOf(
                     com.yunnext.pad.app.ui.screen.vo.DebugCase01Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo,
-                ),
+                )*/,
                 inputList = inputListValue
             )
         }
@@ -269,7 +273,8 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun debug(debug: DebugVo) {
+    fun debug(debug: DebugValue) {
+        i("debug = $debug")
         DataManager.debug(debug = debug)
     }
 
