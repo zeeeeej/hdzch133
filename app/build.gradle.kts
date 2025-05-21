@@ -8,7 +8,7 @@ android {
     namespace = "com.yunnext.pad.app"
     compileSdk = 34
 
-    val versionCodeCommon = 13
+    val versionCodeCommon = 14
     defaultConfig {
         applicationId = "com.yunnext.pad.app"
         minSdk = 28

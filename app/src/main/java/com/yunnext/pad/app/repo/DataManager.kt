@@ -182,7 +182,7 @@ object DataManager {
         }
         if (!result) {
             println("uart open fail ！！！")
-            simpleByteArray()
+//            simpleByteArray()
             return
         }
         println("uart open success ！！!")

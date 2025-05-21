@@ -5,9 +5,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -74,21 +83,35 @@ internal fun _DebugInfo(
                 onClick(it)
             }
         }
-
-        LazyRow(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+        LazyHorizontalGrid(rows = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.wrapContentHeight().heightIn(max = 120.dp)) {
             items(list, {
                 it.toString()
             }) { item ->
-                Button(onClick = {
+                Button(modifier = Modifier.fillMaxWidth(), onClick = {
                     selected = item
                 }) {
                     Item(info = item, selected = { item == selected })
                 }
             }
         }
+//        LazyRow(
+//            modifier = Modifier,
+//            horizontalArrangement = Arrangement.spacedBy(12.dp)
+//        ) {
+//            items(list, {
+//                it.toString()
+//            }) { item ->
+//                Button(onClick = {
+//                    selected = item
+//                }) {
+//                    Item(info = item, selected = { item == selected })
+//                }
+//            }
+//        }
 
 
         // uart inputs
@@ -430,5 +453,5 @@ private fun ItemValue(item: DebugVo?, onClick: (DebugValue) -> Unit) {
 @Composable
 private fun Item(modifier: Modifier = Modifier, info: DebugVo, selected: () -> Boolean) {
 
-    Text(modifier = modifier, text = info.text, color = if (selected()) Color.Red else Color.Black)
+    Text(modifier = modifier.fillMaxWidth(), text = info.text, color = if (selected()) Color.Red else Color.Black)
 }
