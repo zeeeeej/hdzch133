@@ -1,6 +1,7 @@
 package com.yunnext.pad.app.repo
 
 import com.yunnext.pad.app.BuildConfig
+import com.yunnext.pad.app.domain.ToastUtil
 import com.yunnext.pad.app.repo.uart.i
 import com.yunnext.pad.app.repo.uart.ChuSHuiType
 import com.yunnext.pad.app.repo.uart.UartDown
@@ -102,6 +103,7 @@ object DataManager {
     private val _shaJunStatusFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _yinYongStatusFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _errorFlow: MutableStateFlow<UartError> = MutableStateFlow(UartError.Normal)
+    private val _rawFlow: MutableSharedFlow<String> = MutableSharedFlow()
     private val _uartUpRawFlow: MutableSharedFlow<String> = MutableSharedFlow()
     private val _uartDownRawFlow: MutableSharedFlow<String> = MutableSharedFlow()
 
@@ -120,6 +122,7 @@ object DataManager {
     val shaJunStatus = _shaJunStatusFlow.asStateFlow()
     val yinYongStatus = _yinYongStatusFlow.asStateFlow()
     val error = _errorFlow.asStateFlow()
+    val rawFlow = _rawFlow.asSharedFlow()
     val uartUpRaw = _uartUpRawFlow.asSharedFlow()
     val uartDownRaw = _uartDownRawFlow.asSharedFlow()
 
@@ -128,9 +131,9 @@ object DataManager {
     init {
         coroutineScope.launch {
             _uartChannel.receiveAsFlow().collect { data ->
-                if (BuildConfig.DEBUG) {
-                    _uartUpRawFlow.emit(data.toHexString())
-                }
+//                if (BuildConfig.DEBUG) {
+//                    _uartUpRawFlow.emit(data.toHexString())
+//                }
 
                 parseData(data)
             }
@@ -166,17 +169,17 @@ object DataManager {
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     fun init() {
         val uartManager = UartManager()
-        val result = uartManager.start { data, _ ->
+        val result = uartManager.start { data, raw, err ->
             if (data.isNotEmpty()) {
                 data.forEach { item ->
                     _uartChannel.trySend(item)
                 }
-
+                println("start")
                 coroutineScope.launch {
                     _uartUpRawFlow.emit(combineByteArrays(data).toHexString())
+                    _rawFlow.emit("[$err]" + raw.toHexString())
                 }
             }
         }
@@ -205,7 +208,6 @@ object DataManager {
 //         simpleByteArray()
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     private fun parseData(data: ByteArray) {
         try {
             i("[$TAG]<parseData>${data.toHexString()}")
@@ -310,6 +312,8 @@ object DataManager {
                     val data = UartUp.SavedBottlesUp(Random.nextInt(9999)).encode()
                     //aa55 0b 09 bd100000 d6 55bb
                     println("SavedBottlesUp:${data.toHexString()}")
+
+                    //_rawFlow.emit("[${error.value}]" + data.toHexString())
                     _uartChannel.trySend(data)
                 }
             }

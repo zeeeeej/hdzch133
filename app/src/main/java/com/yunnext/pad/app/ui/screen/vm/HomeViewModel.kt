@@ -41,7 +41,8 @@ data class HomeState(
     val statusListInfo: List<StatusVo>,
     val wifiInfo: WifiInfoVo,
     val debug: List<DebugVo>,
-    val inputList: List<UartVo>
+    val inputList: List<UartVo>,
+    val raw: String,
 ) {
     companion object {
         internal val DEFAULT = HomeState(
@@ -52,7 +53,7 @@ data class HomeState(
             quShuiVolume = QuShuiVolumeInfoVo(0, "0"),
             dateTimeInfo = DateTimeInfoVo("2000", "1", "1", "00", "00"),
             statusListInfo = emptyList(),
-            wifiInfo = WifiInfoVo(Level.NaN), debug = emptyList(), inputList = emptyList()
+            wifiInfo = WifiInfoVo(Level.NaN), debug = emptyList(), inputList = emptyList(), raw = ""
         )
     }
 }
@@ -90,6 +91,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private val inputList: MutableStateFlow<List<UartVo>> = MutableStateFlow(emptyList())
+    private val raw: MutableStateFlow<String> = MutableStateFlow("")
 
     val state: Flow<HomeState> =
         combine(
@@ -101,35 +103,35 @@ class HomeViewModel : ViewModel() {
             dateTimeInfo,
             list,
             wifi,
-            inputList
+            inputList, raw
         ) { inputs ->
             val savedBottlesValue = inputs[1] as Int
             val currentTemperatureValue = inputs[4] as Int
-            val quShuiCount = inputs[2] as Int
-            val quShuiVolume = inputs[3] as Int
+            val quShuiCountValue = inputs[2] as Int
+            val quShuiVolumeValue = inputs[3] as Int
             val dateTimeInfoValue = inputs[5] as Long
             val listValue = inputs[6] as List<StatusVo>
             val wifiValue = inputs[7] as Level
             val inputListValue = inputs[8] as List<UartVo>
+            val rawValue = inputs[9] as String
             HomeState(
                 gServiceInfo = GServiceInfoVo(inputs[0] as Int),
                 bottlesInfo = BottlesInfoVo(
                     savedBottlesValue,
                     savedBottlesValue.formatBottlesNumber()
                 ),
-                quShuiCount = QuShuiCountInfoVo(quShuiCount, quShuiCount.formatBottlesNumber()),
-                quShuiVolume = QuShuiVolumeInfoVo(quShuiVolume, quShuiCount.formatBottlesNumber()),
+                quShuiCount = QuShuiCountInfoVo(quShuiCountValue, quShuiCountValue.formatBottlesNumber()),
+                quShuiVolume = QuShuiVolumeInfoVo(quShuiVolumeValue, quShuiVolumeValue.formatBottlesNumber()),
                 tempInfo = TempInfoVo(currentTemperatureValue),
                 dateTimeInfo = dateTimeInfoValue.timestamp2str(),
                 statusListInfo = listValue,
-                wifiInfo = WifiInfoVo(wifiValue)
-                ,debugList/* debug = listOf(
+                wifiInfo = WifiInfoVo(wifiValue), debugList/* debug = listOf(
                     com.yunnext.pad.app.ui.screen.vo.DebugCase01Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase02Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase03Vo,
                     com.yunnext.pad.app.ui.screen.vo.DebugCase04Vo,
                 )*/,
-                inputList = inputListValue
+                inputList = inputListValue, raw = rawValue
             )
         }
 
@@ -193,6 +195,7 @@ class HomeViewModel : ViewModel() {
             launch {
                 DataManager.quShuiVolumeFlow.collect {
                     quShuiVolume.value = it / 1000
+                    i("quShuiVolume $it ${it/1000}")
                 }
             }
 
@@ -256,16 +259,22 @@ class HomeViewModel : ViewModel() {
             launch {
                 DataManager.uartUpRaw.collect {
                     println("uartUpRaw :$it")
-                    val newList = listOf(UartUp(it))+ inputList.value
+                    val newList = listOf(UartUp(it)) + inputList.value
                     inputList.value = newList
                 }
             }
 
             launch {
                 DataManager.uartDownRaw.collect {
-                    println("uartDownRaw :$it")
-                    val newList = listOf(UartDown(it))+ inputList.value
+                    val newList = listOf(UartDown(it)) + inputList.value
                     inputList.value = newList
+                }
+            }
+
+            launch {
+                DataManager.rawFlow.collect {
+                    i("rawFlow:$it")
+                    raw.value = it
                 }
             }
 

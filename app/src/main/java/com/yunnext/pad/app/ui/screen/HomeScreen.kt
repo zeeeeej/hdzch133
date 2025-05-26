@@ -178,13 +178,19 @@ fun HomeScreen(modifier: Modifier = Modifier, paddingValues: PaddingValues) {
             }
 
             AnimatedVisibility(modifier = Modifier.fillMaxWidth(), visible = showDebug) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)) {
-                    _DebugInfo(modifier = Modifier.fillMaxWidth(), list = state.debug) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                ) {
+                    _DebugInfo(
+                        modifier = Modifier.fillMaxWidth(),
+                        list = state.debug,
+                        raw = state.raw
+                    ) {
                         vm.debug(it)
                     }
-                    Text("清空", color = Color.Red,modifier = Modifier.clickable {
+                    Text("清空", color = Color.Red, modifier = Modifier.clickable {
                         vm.clearUart()
                     })
 

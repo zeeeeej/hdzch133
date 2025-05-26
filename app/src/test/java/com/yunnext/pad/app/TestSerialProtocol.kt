@@ -6,7 +6,11 @@ import com.yunnext.pad.app.repo.uart.UartUpCmd
 import com.yunnext.pad.app.repo.uart.encode
 import com.yunnext.pad.app.repo.uart.toArray
 import com.yunnext.pad.app.repo.uart.toByteArray2
+import com.yunnext.pad.app.ui.screen.vo.Level
 import org.junit.Test
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TestSerialProtocol {
 
@@ -164,6 +168,23 @@ class TestSerialProtocol {
 
     @Test
     @OptIn(ExperimentalStdlibApi::class)
+    fun `WifiUp`() {
+        // aa55 0b 10 00000063 73 55bb
+        val data = UartUp.WifiUp(Level.Signal(0x13,0x13)).encode()
+        println(data.toHexString())
+        // aa55 08 01 13 14 55bb
+    }
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
+    fun `QuShuiVolumeUp`() {
+        // aa55 0b 10 00000063 73 55bb
+        val data = UartUp.QuShuiVolumeUp(0x0000015c).encode()
+        println(data.toHexString())
+    }
+
+    @Test
+    @OptIn(ExperimentalStdlibApi::class)
     fun `GetAllUp_from`() {
         // aa55 0b 10 00000063 73 55bb
         val data = "0101010201000F0607E808091028"
@@ -179,13 +200,66 @@ class TestSerialProtocol {
     @Test
     @OptIn(ExperimentalStdlibApi::class)
     fun `splitDataByMarkers`() {
-        val data = "aa550807010855bbaa550907010855bb121313".hexToByteArray()
+
+        val time = 0xffffffff
+
+        // 创建 SimpleDateFormat 对象，指定目标时间格式
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+        // 将时间戳转换为 Date 对象
+        val date = Date(time * 1000) // 时间戳需要转换为毫秒
+
+        // 格式化 Date 对象
+        val formattedDate = dateFormat.format(date)
+
+        // 输出格式化后的时间
+        println("Formatted Date: $formattedDate")
+
+//        val data = "aa550807010855bbaa550907010855bb121313".hexToByteArray()
+        val data = "aa550801141555bbaa550b120000002b3d55bb".hexToByteArray()
         val splitDataByMarkers = SerialProtocol.splitDataByMarkers(input = data)
         if (splitDataByMarkers.isEmpty()) return
         println("->size = " + splitDataByMarkers.size)
         splitDataByMarkers.forEach {
             println("->" + it.toHexString())
         }
+
+
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun `splitDataByMarkersAndDevoce`() {
+
+        val time = 0xffffffff
+
+        // 创建 SimpleDateFormat 对象，指定目标时间格式
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+        // 将时间戳转换为 Date 对象
+        val date = Date(time * 1000) // 时间戳需要转换为毫秒
+
+        // 格式化 Date 对象
+        val formattedDate = dateFormat.format(date)
+
+        // 输出格式化后的时间
+        println("Formatted Date: $formattedDate")
+
+//        val data = "aa550807010855bbaa550907010855bb121313".hexToByteArray()
+//        val data = "aa550801141555bbaa550b120000002b3d55bb".hexToByteArray()
+        val data =
+            "aa550d0f07e9051a0d1f4a55bbaa550801131455bbaa550b12000002b9cd55bb".hexToByteArray()
+        val splitDataByMarkers = SerialProtocol.splitDataByMarkers(input = data)
+        if (splitDataByMarkers.isEmpty()) return
+        println("开始解析size = " + splitDataByMarkers.size)
+        splitDataByMarkers.forEachIndexed { index, bytes ->
+            println("---------$index---------------")
+            println("->" + bytes.toHexString())
+            val up = UartUp.decode(data = bytes)
+            println("->up:$up")
+        }
+
+        // aa550801131455bb
     }
 
 

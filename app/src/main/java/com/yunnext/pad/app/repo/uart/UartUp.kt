@@ -187,12 +187,15 @@ sealed interface UartUp : Uart {
                 val up = decode(cmd, parsePayload)
                 up
             } catch (e: Exception) {
+                e.printStackTrace()
                 throw e
 //                throw IllegalStateException(msg= "UartUp::parse error : $e data is ${data.toHexString()}", cause = e)
             }
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         internal fun decode(cmd: UartUpCmd, parsePayload: ByteArray): UartUp {
+            println("decode cmd:$cmd data:${parsePayload.toHexString()}")
             val up = when (cmd) {
                 UartUpCmd.OnOffCmd -> OnOffUp(parsePayload[0].toInt() == 0x01)
                 UartUpCmd.WiFiCmd -> {
@@ -213,14 +216,14 @@ sealed interface UartUp : Uart {
                 UartUpCmd.GServiceDaysCmd -> {
 
                     val value = parsePayload.toInt()
-                    i("[UP]服务天数:$value")
+                    println("[UP]服务天数:$value")
                     ServiceDaysUp(value)
 
                 }
 
                 UartUpCmd.SavedBottlesCmd -> {
                     val value = parsePayload.toInt()
-                    i("[UP]节约瓶子:$value")
+                    println("[UP]节约瓶子:$value")
                     SavedBottlesUp(value)
 
                 }
@@ -265,8 +268,11 @@ sealed interface UartUp : Uart {
                 }
 
                 UartUpCmd.QuShuiVolumeCmd -> {
+                    // aa55 0b 12 0000015c 6f 55bb
+                    // aa55 0b 12 0000015c 6f 55bb
+                    // aa550b120000015c6f55bb
                     val value = parsePayload.toInt()
-                    i("[UP]取水流量:$value")
+                    println("[UP]取水流量:$value")
                     QuShuiVolumeUp(value)
                 }
 

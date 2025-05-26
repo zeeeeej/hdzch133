@@ -25,6 +25,7 @@ okhttp = "4.12.0"
 coil = "2.3.0"
 fastble = "2.4.0"
 lifecycleProcess = "2.8.7"
+protoliteWellKnownTypes = "18.0.1"
 
 
 [libraries]
@@ -83,6 +84,7 @@ coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 # FastBle https://github.com/Jasonchenlijian/FastBle
 fastble = { module = "com.github.Jasonchenlijian:FastBle", version.ref = "fastble" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
+protolite-well-known-types = { group = "com.google.firebase", name = "protolite-well-known-types", version.ref = "protoliteWellKnownTypes" }
 
 
 [plugins]

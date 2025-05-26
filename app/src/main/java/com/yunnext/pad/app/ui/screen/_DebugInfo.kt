@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yunnext.pad.app.ui.screen.vo.ChildLock
@@ -68,6 +69,7 @@ import com.yunnext.pad.app.ui.screen.vo.TimeForPowerValue
 internal fun _DebugInfo(
     modifier: Modifier = Modifier,
     list: List<DebugVo>,
+    raw: String,
     onClick: (DebugValue) -> Unit
 ) {
     Column(
@@ -77,17 +79,29 @@ internal fun _DebugInfo(
 
         ) {
         Text("《测试选项》", color = Color.Red)
+        val keyboardController = LocalSoftwareKeyboardController.current
         var selected: DebugVo? by remember { mutableStateOf(null) }
+        Text("关闭软件盘", color = Color.Red, modifier = Modifier.clickable {
+
+
+// 关闭键盘
+            keyboardController?.hide()
+        })
         Box(Modifier.background(Color.White)) {
             ItemValue(selected) {
                 onClick(it)
             }
         }
-        LazyHorizontalGrid(rows = GridCells.Fixed(2),
+
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.wrapContentHeight().heightIn(max = 120.dp)) {
+            modifier = Modifier
+                .wrapContentHeight()
+                .heightIn(max = 120.dp)
+        ) {
             items(list, {
                 it.toString()
             }) { item ->
@@ -98,6 +112,7 @@ internal fun _DebugInfo(
                 }
             }
         }
+        Text(raw, color = Color.White)
 //        LazyRow(
 //            modifier = Modifier,
 //            horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -453,5 +468,9 @@ private fun ItemValue(item: DebugVo?, onClick: (DebugValue) -> Unit) {
 @Composable
 private fun Item(modifier: Modifier = Modifier, info: DebugVo, selected: () -> Boolean) {
 
-    Text(modifier = modifier.fillMaxWidth(), text = info.text, color = if (selected()) Color.Red else Color.Black)
+    Text(
+        modifier = modifier.fillMaxWidth(),
+        text = info.text,
+        color = if (selected()) Color.Red else Color.Black
+    )
 }

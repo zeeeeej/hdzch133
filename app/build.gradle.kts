@@ -8,7 +8,7 @@ android {
     namespace = "com.yunnext.pad.app"
     compileSdk = 34
 
-    val versionCodeCommon = 14
+    val versionCodeCommon = 15
     defaultConfig {
         applicationId = "com.yunnext.pad.app"
         minSdk = 28
@@ -111,6 +111,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.protolite.well.known.types)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
