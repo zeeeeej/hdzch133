@@ -5,11 +5,14 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.yunnext.pad.app.domain.runningCurrentProcess
 import com.yunnext.pad.app.repo.DataManager
 import com.yunnext.pad.app.repo.UserHolder
 import com.yunnext.pad.app.repo.http.tokenExpiredChannel
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
@@ -21,12 +24,27 @@ class MyApp : Application() {
         holder = UserHolder(this)
 
         if (this.applicationContext.runningCurrentProcess) {
-            DataManager.init()
-            MainScope().launch {
-                tokenExpiredChannel.consumeAsFlow().collect() {
-                    restartApp(this@MyApp)
+            ProcessLifecycleOwner.get().lifecycleScope.launch {
+                launch {
+                    println("     DataManager.init()....")
+                    delay(1000)
+                    try {
+                        DataManager.init()
+                    } catch (e: Exception) {
+                        println("     DataManager.init() error $e")
+                        e.printStackTrace()
+                    }
+                    println("     DataManager.init()")
+                }
+
+                launch {
+                    tokenExpiredChannel.consumeAsFlow().collect() {
+                        restartApp(this@MyApp)
+                    }
                 }
             }
+
+
         }
     }
 
